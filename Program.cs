@@ -1,6 +1,4 @@
 ﻿using MySql.Data.MySqlClient;
-using System;
-using System.IO;
 
 namespace ProjetBDDFleurs
 {
@@ -11,52 +9,111 @@ namespace ProjetBDDFleurs
 
         static void Main(string[] args)
         {
-            //NouvClient();
-            //Sauvegarde();
-            //InsertionTable("client.txt", "Client");
-            //Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd"));
-            choixProduit();
-        }
+            //InsertionTable("clients.txt", "Client"); //à exécuter qu'une fois/creation table
+            BonCommande("scooby.doo@gmail.com", "ouaf");
 
-        static void BonCommande(string email, string mdp)
-        {
-            string req = "";
             /*
-             numCommande,dateCommande,adresseLivraison,message,dateLivraison,produit
+             idées suite :
+             * définir la date livraison : null au début ? --> dès que le designer a validé les produits, on cherche quel mag peut assembler la commande 
+                                                           --> donne une date de livraison de dateCommande+3 max si un magasin est trouvé
+             * faire un affichage console de toutes les commandes non livrées et validées (ya tout les composants dispo dans un mag) 
+               --> l'ordre par numCommande croissant permet de donner un j de livraison (cb de livraisons par j ?)
              */
-            string numCommande = "";
-            string dateCommande = DateTime.Now.ToString("yyyy-MM-dd");
-            string adresseLivraison = "";
-            string message = "";
-            string dateLivraison = "";
-            string produit = "";
-
         }
 
-        static string choixProduit()
+        static void BonCommande(string email, string mdp) //note : créer un menu pour se connecter avant
+        {
+            Console.Clear();
+            string tmp = Request("select max(numCommande) from bonCommande;", BozoConnection);
+            if (tmp == "")
+            {
+                tmp = "0";
+            }
+            int numCommande = Convert.ToInt32(tmp) + 1;
+            string dateCommande = DateTime.Now.ToString("yyyy-MM-dd");
+            string[] produit = choixProduit();
+            string adresseLivraison = StrNotNull("Adresse de livraison :");
+            Console.WriteLine("Message :");
+            string message = Console.ReadLine();
+            string dateLivraison = "2023-05-05"; //à définir
+            Console.Clear();
+            Console.WriteLine("Récapitulatif de la commande :\n" +
+                              "Date de la commande : " + dateCommande +
+                            "\nChoix du produit : " + produit[0] +
+                            "\nPrix : " + produit[1]);
+            if (produit[2] != "") { Console.WriteLine("Description du produit souhaité : " + produit[2]); }
+            Console.WriteLine("Adresse de livraison :" + adresseLivraison +
+                            "\nMessage :" + message +
+                            "\nDate Livraison : " + dateLivraison +
+                            "\n\nContinuer ? O/N");
+            do
+            {
+                tmp = Console.ReadLine();
+            } while (!(tmp == "O" || tmp == "N"));
+            if (tmp == "O")
+            {
+                string etat = "VINV";
+                if (produit[2] != "") { etat = "CPAV"; }
+                string req = "insert into `Fleurs`.`bonCommande` values(" + numCommande + ",'" + dateCommande + "','" + email + "',null,'" + adresseLivraison + "','" + message + "','" + dateLivraison + "','" + produit[0] + "','" + etat + "'," + produit[1] + ",'" + produit[2] + "');";
+                Console.WriteLine(req);
+                try
+                {
+                    Request(req, RootConnection);
+                    Console.WriteLine("Commande enregistrée");
+                }
+                catch
+                {
+                    Console.WriteLine("Erreur dans l'enregistrement de la commande\nVeuillez réessayer ultérieurement");
+                }
+            }
+            else { Console.WriteLine("Commande annulée"); }
+        }
+
+        static string[] choixProduit() //return string[nom,prix,description]
         {
             string res = "";
-            Console.WriteLine("(1) Nom              Composition                                                           Prix        Catégorie\n" +
-                              "(2) Gros Merci :     Arrangement floral avec marguerites et verdure                         45 euros   Toute occasion\n" +
-                              "(3) L’amoureux :     Arrangement floral avec roses blanches et roses rouges                 65 euros   St-Valentin\n" +
-                              "(4) L’Exotique :     Arrangement floral avec ginger, oiseaux du paradis, roses et genet     40 euros   Toute occasion\n" +
-                              "(5) Maman :          Arrangement floral avec gerbera, roses blanches, lys et alstroméria    80 euros   Fête des mères\n" +
-                              "(6) Vive la mariée : Arrangement floral avec lys et orchidées                              120 euros   Mariage\n" +
-                              "(7) Personnalisé :   Description à fournir                                                 A définir");
+            string[] produit = new string[] { "", "", "" };
+            Console.WriteLine("    Nom              Composition                                                           Prix        Catégorie\n" +
+                              "(1) Gros Merci :     Arrangement floral avec marguerites et verdure                         45 euros   Toute occasion\n" +
+                              "(2) L’amoureux :     Arrangement floral avec roses blanches et roses rouges                 65 euros   St-Valentin\n" +
+                              "(3) L’Exotique :     Arrangement floral avec ginger, oiseaux du paradis, roses et genet     40 euros   Toute occasion\n" +
+                              "(4) Maman :          Arrangement floral avec gerbera, roses blanches, lys et alstroméria    80 euros   Fête des mères\n" +
+                              "(5) Vive la mariée : Arrangement floral avec lys et orchidées                              120 euros   Mariage\n" +
+                              "(6) Personnalisé :   Description à fournir                                                 A définir");
             do
             {
                 Console.WriteLine("Choisir un produit :");
                 res = Console.ReadLine();
             } while (!(res == "1" || res == "2" || res == "3" || res == "4" || res == "5" || res == "6" || res == "7"));
-            return res;
-            /* 
-            Gros Merci Arrangement floral avec marguerites et verdure 45 € Toute occasion
-            L’amoureux Arrangement floral avec roses blanches et roses rouges 65 € St-Valentin
-            L’Exotique Arrangement floral avec ginger, oiseaux du paradis, roses et genet 40 € Toute occasion
-            Maman Arrangement floral avec gerbera, roses blanches, lys et alstroméria 80 € Fête des mères
-            Vive la mariée Arrangement floral avec lys et orchidées 120 $ Mariage 
-            Personnalisé      description à fournir      prix à définir
-*/
+            switch (res)
+            {
+                case "1":
+                    produit[0] = "Gros Merci";
+                    produit[1] = "45";
+                    break;
+                case "2":
+                    produit[0] = "L'amoureux";
+                    produit[1] = "65";
+                    break;
+                case "3":
+                    produit[0] = "L'exotique";
+                    produit[1] = "40";
+                    break;
+                case "4":
+                    produit[0] = "Maman";
+                    produit[1] = "80";
+                    break;
+                case "5":
+                    produit[0] = "Vive la mariée";
+                    produit[1] = "120";
+                    break;
+                default:
+                    produit[0] = "Personnalisé";
+                    produit[1] = StrNotNull("Entrer le prix :");
+                    produit[2] = StrNotNull("Descrition du produit souhaité :");
+                    break;
+            }
+            return produit;
         }
 
         static string[] Connection()
@@ -64,14 +121,8 @@ namespace ProjetBDDFleurs
             string[] res = new string[] { "", "" };
             Console.Clear();
             Console.WriteLine("Login");
-            string email = "";
-            do
-            {
-                Console.Write("Email : ");
-                email = Console.ReadLine();
-            } while (email == "");
-            Console.Write("Mot de passe : ");
-            string mdp = Console.ReadLine();
+            string email = StrNotNull("Email :");
+            string mdp = StrNotNull("Mot de passe :");
             string req = "select count(*) from client where courriel='" + email + "' and motDePasse='" + mdp + "';";
             if (Request(req, RootConnection) == "1")
             {
@@ -98,7 +149,7 @@ namespace ProjetBDDFleurs
                 string adresse = Console.ReadLine();
                 Console.WriteLine("Carte de Crédit : ");
                 string carte = Console.ReadLine();
-                string req = "INSERT INTO `Fleurs`.`client` (`courriel`,`nomC`,`prenomC`,`numTel`,`motDePasse`,`adresseFacturation`,`carteCredit`) VALUES ('"
+                string req = "INSERT INTO `Fleurs`.`client` VALUES ('"
                     + courriel + "','" + nom + "','" + prenom + "','" + tel + "','" + mdp + "','" + adresse + "','" + carte + "');";
                 Request(req, RootConnection);
             }
@@ -119,20 +170,27 @@ namespace ProjetBDDFleurs
             return res;
         }
 
-        static void InsertionTable(string path, string nomTable)
+        static void InsertionTable(string path, string nomTable) //note : penser à 
         {
             string[] table = File.ReadAllLines(path);
             foreach (string line in table)
             {
-                string req = "insert into `Fleurs`.`" + nomTable + "`( `courriel`,`nomC`,`prenomC`,`numTel`,`motDePasse`,`adresseFacturation`,`carteCredit`) values (";
+                string req = "insert into `Fleurs`.`" + nomTable + "` values (";
                 string[] elements = line.Split(";");
                 for (int i = 0; i < elements.Length - 1; i++)
                 {
                     req += "'" + elements[i] + "',";
                 }
                 req += "'" + elements[elements.Length - 1] + "');";
-                Console.WriteLine(req);
-                Request(req, RootConnection);
+                try
+                {
+                    Request(req, RootConnection);
+                }
+                catch
+                {
+                    Console.WriteLine("Erreur insertion table " + nomTable);
+                }
+
             }
         }
 
@@ -180,7 +238,7 @@ namespace ProjetBDDFleurs
                     for (int i = 0; i < reader.FieldCount; i++)    // parcours cellule par cellule
                     {
                         string tmp = reader.GetValue(i).ToString();  // recuperation de la valeur de chaque cellule sous forme d'une string (voir cependant les differentes methodes disponibles !!)
-                        currentRowAsString += tmp.ToUpper()[0] + tmp.Substring(1);
+                        if (tmp != "") currentRowAsString += tmp.ToUpper()[0] + tmp.Substring(1);
                         if (i < reader.FieldCount - 1) currentRowAsString += ";";
                     }
                     str += currentRowAsString + "\n";    // affichage de la ligne (sous forme d'une "grosse" string) sur la sortie standard
