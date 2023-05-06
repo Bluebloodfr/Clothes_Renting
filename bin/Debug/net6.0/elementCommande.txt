@@ -1,0 +1,70 @@
+1;Gerbera;1;5.00
+1;Pot de fleurs;1;3.00
+1;Papier cadeau;1;1.50
+2;Ginger;1;4.00
+2;Pot de fleurs;1;3.00
+2;Ruban;1;0.75
+3;Glaïeul;1;1.00
+3;Papier cadeau;1;1.50
+3;Ruban;1;0.75
+4;Marguerite;1;2.25
+4;Pot de fleurs;1;3.00
+4;Papier cadeau;1;1.50
+5;Rose rouge;1;2.50
+5;Pot de fleurs;1;3.00
+5;Ruban;1;0.75
+6;Gerbera;1;5.00
+6;Papier cadeau;1;1.50
+6;Ruban;1;0.75
+7;Ginger;1;4.00
+7;Pot de fleurs;1;3.00
+7;Papier cadeau;1;1.50
+8;Glaïeul;1;1.00
+8;Pot de fleurs;1;3.00
+8;Ruban;1;0.75
+9;Marguerite;1;2.25
+9;Papier cadeau;1;1.50
+9;Ruban;1;0.75
+10;Rose rouge;1;2.50
+10;Pot de fleurs;1;3.00
+10;Papier cadeau;1;1.50
+11;Gerbera;2;10.00
+11;Pot de fleurs;1;3.00
+12;Ginger;1;4.00
+12;Papier cadeau;1;1.50
+13;Glaïeul;2;2.00
+13;Pot de fleurs;1;3.00
+14;Marguerite;1;2.25
+14;Papier cadeau;1;1.50
+15;Rose rouge;1;2.50
+15;Ruban;1;0.75
+16;Gerbera;1;5.00
+16;Pot de fleurs;1;3.00
+17;Ginger;2;8.00
+17;Papier cadeau;1;1.50
+18;Glaïeul;3;3.00
+18;Pot de fleurs;1;3.00
+19;Marguerite;2;4.50
+19;Papier cadeau;1;1.50
+20;Rose rouge;1;2.50
+20;Ruban;1;0.75
+21;Gerbera;3;15.00
+21;Pot de fleurs;1;3.00
+22;Ginger;2;8.00
+22;Papier cadeau;1;1.50
+23;Glaïeul;4;4.00
+23;Pot de fleurs;1;3.00
+24;Marguerite;3;6.75
+24;Papier cadeau;1;1.50
+25;Rose rouge;2;5.00
+25;Ruban;1;0.75
+26;Gerbera;1;5.00
+26;Pot de fleurs;1;3.00
+27;Ginger;3;12.00
+27;Papier cadeau;1;1.50
+28;Glaïeul;1;1.00
+28;Pot de fleurs;1;3.00
+29;Marguerite;2;4.50
+29;Papier cadeau;1;1.50
+30;Rose rouge;3;7.50
+30;Ruban;1;0.75
