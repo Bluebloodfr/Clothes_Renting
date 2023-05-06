@@ -40,3 +40,6 @@ C:\Users\jbgir\source\repos\Projet_BBD_Fleurs\Projet_BBD_Fleurs\obj\Debug\net6.0
 C:\Users\jbgir\source\repos\Projet_BBD_Fleurs\Projet_BBD_Fleurs\obj\Debug\net6.0\Projet_BBD_Fleurs.pdb
 C:\Users\jbgir\source\repos\Projet_BBD_Fleurs\Projet_BBD_Fleurs\obj\Debug\net6.0\Projet_BBD_Fleurs.genruntimeconfig.cache
 C:\Users\jbgir\source\repos\Projet_BBD_Fleurs\Projet_BBD_Fleurs\obj\Debug\net6.0\ref\Projet_BBD_Fleurs.dll
+C:\Users\etien\Source\Repos\Projet_BBD_Fleurs\obj\Debug\net6.0\Projet_BBD_Fleurs.dll
+C:\Users\etien\Source\Repos\Projet_BBD_Fleurs\obj\Debug\net6.0\refint\Projet_BBD_Fleurs.dll
+C:\Users\etien\Source\Repos\Projet_BBD_Fleurs\obj\Debug\net6.0\Projet_BBD_Fleurs.pdb

@@ -9,7 +9,7 @@ namespace ProjetBDDFleurs
 
         static void Main(string[] args)
         {
-            //InsertionTable("clients.txt", "Client"); //à exécuter qu'une fois/creation table
+            InsertionTable("clients.txt", "Client"); //à exécuter qu'une fois/creation table
             BonCommande("scooby.doo@gmail.com", "ouaf");
 
             /*
@@ -21,7 +21,7 @@ namespace ProjetBDDFleurs
              */
         }
 
-        static void BonCommande(string email, string mdp) //note : créer un menu pour se connecter avant
+        static void BonCommande(string email, string mdp) //note : créer un menu pour se connecter avant (email/mdp)
         {
             Console.Clear();
             string tmp = Request("select max(numCommande) from bonCommande;", BozoConnection);
@@ -170,7 +170,7 @@ namespace ProjetBDDFleurs
             return res;
         }
 
-        static void InsertionTable(string path, string nomTable) //note : penser à 
+        static void InsertionTable(string path, string nomTable)
         {
             string[] table = File.ReadAllLines(path);
             foreach (string line in table)
@@ -241,7 +241,7 @@ namespace ProjetBDDFleurs
                         if (tmp != "") currentRowAsString += tmp.ToUpper()[0] + tmp.Substring(1);
                         if (i < reader.FieldCount - 1) currentRowAsString += ";";
                     }
-                    str += currentRowAsString + "\n";    // affichage de la ligne (sous forme d'une "grosse" string) sur la sortie standard
+                    str += currentRowAsString + "\n"; //'\n' et ';' permettent de récupérer les données sous le format csv
                 }
                 str = str.Substring(0, str.Length - 1);
             }
