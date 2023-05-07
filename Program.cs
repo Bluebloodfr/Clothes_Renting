@@ -19,8 +19,7 @@ namespace ProjetBDDFleurs
                                                            --> donne une date de livraison de dateCommande+3 max si un magasin est trouvé
              * faire un affichage console de toutes les commandes non livrées et validées (ya tout les composants dispo dans un mag) 
                --> l'ordre par numCommande croissant permet de donner un j de livraison (cb de livraisons par j ?)
-             * pour le client possibilité de voir l'historique des anciennes commandes
-             * 
+             
              * XML : clients ayant commandé plusieurs fois durant le dernier mois, requete sql :
              select nomC, prenomC, client.courriel from client join bonCommande on client.courriel=bonCommande.courriel
              where dateCommande>date_sub(curdate(), INTERVAL 1 MONTH) group by client.courriel having count(*)>1;
@@ -34,11 +33,14 @@ namespace ProjetBDDFleurs
 
         static void Menu()
         {
-            if (Request("select count(*) from client", BozoConnection) == "0") { InsertionTable("clients.txt", "client"); }
-            if (Request("select count(*) from magasin", BozoConnection) == "0") { InsertionTable("magasin.txt", "magasin"); }
-            if (Request("select count(*) from bonCommande", BozoConnection) == "0") { InsertionTable("bonCommande.txt", "bonCommande"); }
-            if (Request("select count(*) from elementCommande", BozoConnection) == "0") { InsertionTable("elementCommande.txt", "elementCommande"); }
-            if (Request("select count(*) from elementStock", BozoConnection) == "0") { InsertionTable("elementStock.txt", "elementStock"); }
+            if (Request("select count(*) from client", BozoConnection) == "0")
+            {
+                InsertionTable("clients.txt", "client");
+                InsertionTable("magasin.txt", "magasin");
+                InsertionTable("bonCommande.txt", "bonCommande");
+                InsertionTable("elementCommande.txt", "elementCommande");
+                InsertionTable("elementStock.txt", "elementStock");
+            }
             string res = "";
             do
             {
@@ -71,7 +73,7 @@ namespace ProjetBDDFleurs
                 else { NouvClient(); }
                 Console.WriteLine();
                 res = Continuer();
-            } while (res != "O");
+            } while (res == "O");
         }
 
         static void BonCommande(string email) //note : créer un menu pour se connecter avant (email/mdp)
@@ -82,18 +84,31 @@ namespace ProjetBDDFleurs
             int numCommande = Convert.ToInt32(tmp) + 1;
             string dateCommande = DateTime.Now.ToString("yyyy-MM-dd");
             string[] produit = choixProduit();
-            string adresseLivraison = StrNotNull("Adresse de livraison :");
-            Console.WriteLine("Message :");
+            string adresseLivraison = StrNotNull("Adresse de livraison : ");
+            Console.Write("Message : ");
+            double coeffReduc = Reduction(email);
+            double prixFinal = Convert.ToInt32(produit[1]) * coeffReduc;
             string message = Console.ReadLine();
-            //ici if reduc
             string dateLivraison = "2023-05-05"; //à définir
             Console.Clear();
             Console.WriteLine("Récapitulatif de la commande :\n" +
                               "Date de la commande : " + dateCommande +
                             "\nChoix du produit : " + produit[0] +
                             "\nPrix : " + produit[1]);
-            //aff fid
-            //prix avec reduc
+            Console.Write("Réduction fidélité : ");
+            switch (coeffReduc)
+            {
+                case 0.85:
+                    Console.WriteLine("15%");
+                    break;
+                case 0.95:
+                    Console.WriteLine("5%");
+                    break;
+                default:
+                    Console.WriteLine("Non");
+                    break;
+            }
+            Console.WriteLine("Prix final : " + prixFinal);
             if (produit[2] != "") { Console.WriteLine("Description du produit souhaité : " + produit[2]); }
             Console.WriteLine("Adresse de livraison :" + adresseLivraison +
                             "\nMessage :" + message +
@@ -104,31 +119,29 @@ namespace ProjetBDDFleurs
             {
                 string etat = "VINV";
                 if (produit[2] != "") { etat = "CPAV"; }
-                string req = "insert into `Fleurs`.`bonCommande` values(" + numCommande + ",'" + dateCommande + "','" + email + "',null,'" + adresseLivraison + "','" + message + "','" + dateLivraison + "','" + produit[0] + "','" + etat + "'," + produit[1] + ",'" + produit[2] + "');";
+                string req = "insert into `Fleurs`.`bonCommande` values(" + numCommande + ",'" + dateCommande + "','" + email + "',null,'" + adresseLivraison + "','" + message + "','" + dateLivraison + "','" + produit[0] + "','" + etat + "'," + prixFinal.ToString(CultureInfo.CreateSpecificCulture("en-GB")) + ",'" + produit[2] + "');";
                 try
                 {
                     Request(req, RootConnection);
                     Console.WriteLine("Commande enregistrée");
                 }
-                catch { Console.WriteLine("Erreur dans l'enregistrement de la commande\nVeuillez réessayer ultérieurement"); }
+                catch { Console.WriteLine("Erreur dans l'enregistrement de la commande\nVeuillez réessayer ultérieurement" + req); }
             }
             else { Console.WriteLine("Commande annulée"); }
         }
 
-        static double Reduction()
+        static double Reduction(string email)
         {
-            double reduc = 0;
-
-
-            return reduc;
-            /*
-             * Fidélité OR si le client achète plus de 5 bouquets par mois --> 15% est offerte sur chaque bouquet
-             * Fidélité Bronze si le client achète en moyenne un bouquet par mois --> 5%
-              
-             * requete :
-             * select avg(c) from (select count(*) as c, courriel from bonCommande where courriel='EMAIL' group by month(dateCommande)) as a;
-             *      moyenne (avg(c))   du nombre (count(*) as c )     de bonCommande         de EMAIL            par mois
-             */
+            double coeff = 1.0;
+            double moy = 0;
+            try
+            {
+                moy = Convert.ToDouble(Request("select avg(c) from(select count(*) as c, courriel from bonCommande where courriel = '" + email + "' group by month(dateCommande)) as a;", BozoConnection));
+            }
+            catch { moy = 0.0; }
+            if (moy > 5) { coeff = 0.85; }
+            else if (moy >= 1) { coeff = 0.95; }
+            return coeff;
         }
 
         static string[] choixProduit() //return string[nom,prix,description]
