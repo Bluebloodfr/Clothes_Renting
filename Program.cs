@@ -14,7 +14,8 @@ namespace ProjetBDDFleurs
         {
             //InsertionTable("clients.txt", "Client"); //à exécuter qu'une fois/creation table
             //BonCommande("scooby.doo@gmail.com");
-            ExportTableToXml(RootConnection, "client");
+            //ExportTableToXml(RootConnection, "client");
+            Statistiques();
 
             /*
              idées suite :
@@ -32,6 +33,115 @@ namespace ProjetBDDFleurs
              where dateCommande>date_sub(curdate(), INTERVAL 6 MONTH) group by client.courriel having count(*)=0;
 
              */
+        }
+
+        static void Statistiques()
+        {
+            int nombreTotalDeCommandes = NombreTotalDeCommandes();
+            Dictionary<string, int> commandesParEtat = CommandesParEtat();
+            decimal montantTotalDesVentes = MontantTotalDesVentes();
+            double prixMoyenBouquet = PrixMoyenBouquet();
+            string meilleurClientMois = MeilleurClient("MONTH");
+            string meilleurClientAnnee = MeilleurClient("YEAR");
+            //string bouquetStandardPlusDeSucces = BouquetStandardPlusDeSucces();
+            string magasinPlusDeChiffreAffaires = MagasinPlusDeChiffreAffaires();
+            //string fleurExotiqueMoinsVendue = FleurExotiqueMoinsVendue();
+
+            Console.WriteLine("Statistiques:");
+            Console.WriteLine($"Nombre total de commandes: {nombreTotalDeCommandes}");
+            Console.WriteLine("Commandes par état:");
+            foreach (KeyValuePair<string, int> kvp in commandesParEtat)
+            {
+                Console.WriteLine($"  {kvp.Key}: {kvp.Value}");
+            }
+            Console.WriteLine($"Montant total des ventes: {montantTotalDesVentes}");
+            Console.WriteLine($"Prix moyen du bouquet acheté: {prixMoyenBouquet}");
+            Console.WriteLine($"Meilleur client du mois: {meilleurClientMois}");
+            Console.WriteLine($"Meilleur client de l'année: {meilleurClientAnnee}");
+            //Console.WriteLine($"Bouquet standard le plus populaire: {bouquetStandardPlusDeSucces}");
+            Console.WriteLine($"Magasin ayant généré le plus de chiffre d'affaires: {magasinPlusDeChiffreAffaires}");
+            //Console.WriteLine($"Fleur exotique la moins vendue: {fleurExotiqueMoinsVendue}");
+        }
+
+
+        static int NombreTotalDeCommandes()
+        {
+            string req = "SELECT COUNT(*) FROM bonCommande;";
+            string result = Request(req, RootConnection);
+            return int.Parse(result);
+        }
+
+        static Dictionary<string, int> CommandesParEtat()
+        {
+            string req = "SELECT etat, COUNT(*) FROM bonCommande GROUP BY etat;";
+            string result = Request(req, RootConnection);
+            string[] lines = result.Split("\n");
+            Dictionary<string, int> commandesParEtat = new Dictionary<string, int>();
+
+            foreach (string line in lines)
+            {
+                string[] data = line.Split(";");
+                commandesParEtat.Add(data[0], int.Parse(data[1]));
+            }
+
+            return commandesParEtat;
+        }
+
+        static decimal MontantTotalDesVentes()
+        {
+            string req = "SELECT SUM(prix) FROM bonCommande;";
+            string result = Request(req, RootConnection);
+            return decimal.Parse(result);
+        }
+
+        static double PrixMoyenBouquet()
+        {
+            string req = "SELECT AVG(prix) FROM bonCommande;";
+            string result = Request(req, RootConnection);
+            return double.Parse(result);
+        }
+
+        static string MeilleurClient(string periode)
+        {
+            string req = "SELECT courriel, SUM(prix) as total FROM bonCommande WHERE dateCommande >= DATE_ADD(CURDATE(), INTERVAL -1 " + periode + ") GROUP BY courriel ORDER BY total DESC LIMIT 1;";
+            string result = Request(req, RootConnection);
+            return result.Split(';')[0];
+        }
+
+        static string BouquetStandardPlusDeSucces()
+        {
+            string req = "SELECT ec.nomEC, COUNT(*) as nb " +
+                         "FROM elementCommande ec " +
+                         "JOIN bonCommande bc ON ec.numCommande = bc.numCommande " +
+                         "WHERE bc.produit = 'Standard' AND bc.etat = 'CC' " +
+                         "GROUP BY ec.nomEC " +
+                         "ORDER BY nb DESC LIMIT 1;";
+            string result = Request(req, RootConnection);
+            return result.Split(';')[0];
+        }
+
+        static string MagasinPlusDeChiffreAffaires()
+        {
+            string req = "SELECT m.adresseM, m.nomM, SUM(bc.prix) as total " +
+                         "FROM bonCommande bc " +
+                         "JOIN magasin m ON bc.adresseM = m.adresseM " +
+                         "GROUP BY m.adresseM, m.nomM " +
+                         "ORDER BY total DESC LIMIT 1;";
+            string result = Request(req, RootConnection);
+            string[] parts = result.Split(';');
+            return parts[0] + ", " + parts[1];
+        }
+
+        static string FleurExotiqueMoinsVendue()
+        {
+            string req = "SELECT ec.nomEC, COUNT(*) as nb " +
+                         "FROM elementCommande ec " +
+                         "JOIN bonCommande bc ON ec.numCommande = bc.numCommande " +
+                         "WHERE bc.produit = 'Exotique' " +
+                         "GROUP BY ec.nomEC " +
+                         "ORDER BY nb ASC LIMIT 1;";
+            string result = Request(req, RootConnection);
+            return result.Split(';')[0];
         }
 
         static void ExportTableToXml(string StringConnection, string tableName)
