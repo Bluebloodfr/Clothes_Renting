@@ -4,14 +4,17 @@ namespace ProjetBDDFleurs
 {
     class Program
     {
-        const string RootConnection = "SERVER=localhost;PORT=3306;DATABASE=Fleurs;UID=root;PASSWORD=root;";
+        const string RootConnection = "SERVER=localhost;PORT=3306;DATABASE=Fleurs;UID=root;PASSWORD=Credoo78;";
         const string BozoConnection = "SERVER=localhost;PORT=3306;DATABASE=Fleurs;UID=bozo;PASSWORD=bozo;";
 
         static void Main(string[] args)
         {
-            //InsertionTable("clients.txt", "Client"); //à exécuter qu'une fois/creation table
-            BonCommande("scooby.doo@gmail.com", "ouaf");
-
+            InsertionTable("clients.txt", "Client");
+            InsertionTable("magasin.txt", "magasin");
+            InsertionTable("bonCommande.txt", "bonCommande");
+            InsertionTable("elementStock.txt", "elementStock");
+            InsertionTable("elementCommande.txt", "elementCommande"); //à exécuter qu'une fois/creation table
+            //BonCommande("scooby.doo@gmail.com", "ouaf");
             /*
              idées suite :
              * définir la date livraison : null au début ? --> dès que le designer a validé les produits, on cherche quel mag peut assembler la commande 
