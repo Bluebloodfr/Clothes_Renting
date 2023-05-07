@@ -1,5 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
+using System.Data;
 using System.Globalization;
+using System.Xml;
 
 namespace ProjetBDDFleurs
 {
@@ -11,7 +13,8 @@ namespace ProjetBDDFleurs
         static void Main(string[] args)
         {
             //InsertionTable("clients.txt", "Client"); //à exécuter qu'une fois/creation table
-            BonCommande("scooby.doo@gmail.com", "ouaf");
+            //BonCommande("scooby.doo@gmail.com");
+            ExportTableToXml(RootConnection, "client");
 
             /*
              idées suite :
@@ -31,7 +34,31 @@ namespace ProjetBDDFleurs
              */
         }
 
-        static void Menu()
+        static void ExportTableToXml(string StringConnection, string tableName)
+        {
+            string selectQuery = $"SELECT * FROM {tableName}";
+            MySqlConnection connection = new MySqlConnection(StringConnection);
+            connection.Open();
+
+            using (MySqlCommand command = new MySqlCommand(selectQuery, connection))
+            {
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    // Création d'un DataTable pour stocker les données de la table
+                    DataTable dataTable = new DataTable(tableName);
+                    dataTable.Load(reader);
+
+                    // Export des données du DataTable en XML
+                    using (XmlTextWriter xmlWriter = new XmlTextWriter($"{tableName}.xml", System.Text.Encoding.UTF8))
+                    {
+                        xmlWriter.Formatting = Formatting.Indented;
+                        dataTable.WriteXml(xmlWriter);
+                    }
+                }
+            }
+            connection.Close();
+        }
+            static void Menu()
         {
             if (Request("select count(*) from client", BozoConnection) == "0")
             {
