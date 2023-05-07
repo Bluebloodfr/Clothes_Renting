@@ -1,0 +1,20 @@
+jean.dujardin@gmail.com;Dujardin;Jean;06.02.60.96.22;oss117;36 Rue Orillon, 75011 Paris;378836214285273
+heisenberg@gmail.com;White;Walter;+505 6.53.23.87.27;sayMyName;308 Negra Arroyo Lane, 87104 Albuquerque;2149632762714069
+vincent.vega@gmail.com;Vega;Vincent;06.55.58.16.41;LeBigMac;5 Rue de Castellane, 75008 Paris;6286239925761880
+kill.bill@gmail.com;Kiddo;Beatrix;07.88.38.08.08;LonelyShepherd;68 Avenue de Villiers, 75017 Paris;5152466640960926
+georges.clonney@gmail.com;Clonney;Georges;06.72.89.14.23;whatElse;79 Rue Galande, 75005 Paris;2014480057439964
+pennywise@gmail.com;The Clown;Pennywise;06.37.41.73.89;georgie;29 Neibolt Street, 19860 Derry;8699692329948700
+marion.cotillard@gmail.com;Cotillard;Marion;07.77.31.68.63;batman;18 Boulevard Auguste Blanqui, 75013 Paris;8699290971669425
+medellin.cartel@gmail.com;Escobar;Pablo;+57 6.68.86.30.39;narcos;Napoles Hacienda, 45680 Cali;8699782761542689
+didier.gossard@devinci.fr;Gossard;Didier;06.09.31.46.69;trivial;159 Quai de Valmy, 75010 Paris;6226221442844533
+peaky.blinders@gmail.com;Shelby;Thomas;07.20.91.69.73;grace;4323 New Creek Road, 35203 Birmingham;3512493967523905
+humanoid.typhoon@gmail.com;The Stampede;Vash;06.56.60.88.07;knives;47 Rue des Volontaires, 75015 Paris;4024007112371108
+olivier.zanette@devinci.fr;Zanette;Olivier;06.56.03.92.89;nantes;17 Rue De La Gaensmatt,44000 Nantes;6011048677074323
+jean-marc.bidault@devinci.fr;Bidault;Jean-Marc;07.30.44.77.27;esilv;29 Rue des Rosiers, 75004 Paris;4539682866218420
+daniel.craig@gmail.com;Craig;Daniel;06.07.01.20.07;CasinoRoyale;6 Rue Bonaparte, 75007 Paris;4008697547971439
+margot.robbie@gmail.com;Robbie;Margot;06.70.10.01.58;babylon;42 Rue des Vinaigriers, 75010 Paris;2014828609253251
+dark.sidious@gmail.com;Palpatine;Sheev;06.76.18.70.35;order66;77 Boulevard Beaumarchais, 75011 Paris;6011901050102659
+brad.pitt@gmail.com;Pitt;Brad;06.48.84.59.25;fightClub;13 Passage du Moulinet, 75013 Paris;370675477295928
+stephen.sommers@gmail.com;Sommers;Stephen;07.09.04.62.88;TheMummy;211 Avenue Jean Jaures, 75019 Paris;5179625694814029
+scooby.doo@gmail.com;Doo;Scooby;06.24.06.67.55;ouaf;57 Rue de Varenne, 75007 Paris;6011308666737177
+john.coffey@gmail.com;Coffey;John;06.37.12.36.99;LigneVerte;120 Rue de la Pompe, 75116 Paris;2149627388098806
