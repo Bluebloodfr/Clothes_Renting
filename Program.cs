@@ -154,7 +154,33 @@ namespace ProjetBDDFleurs
                     Console.WriteLine("Choisir une action :");
                     res = Console.ReadLine();
                 } while (!(res == "1" || res == "2" || res == "3"));
-                if (res == "1") { Console.WriteLine("t'as oublié de faire ça"); }
+                if (res == "1")
+                {
+                    string[] VINV=Request("select numCommande,dateCommande from bonCommande where etat='VINV';",BozoConnection).Split("\n");
+                    int[] num = new int[VINV.Length];
+                    Console.WriteLine("numCommande,dateCommande");
+                    for (int i = 0; i < VINV.Length; i++)
+                    {
+                        string[] tmp = VINV[i].Split(";");
+                        for (int j = 0; j < tmp.Length; j++)
+                        {
+                            if (j == 0 && tmp[j] != "") { num[j] = Convert.ToInt32(tmp[j]); }
+                            else { num[j] = -1; }
+                            if (j < tmp.Length - 1) { Console.Write(tmp[j] + ", "); }
+                            else { Console.Write(tmp[j]); }
+                        }
+                        if (num[i] != -1)
+                        {
+                            string[] mag = GetMagasin(num[i]);
+                            if (mag[0] != "")
+                            {
+                                CCtoCAL(num[i], mag[0]);
+                                Console.WriteLine($"Commande {num[i]} prête à être livrée");
+                            }
+                            else { Console.WriteLine($"Stock insuffisant pour la commande {num[i]}, vérifier les stocks"); }
+                        }
+                    }
+                }
                 else if (res == "2")
                 {
                     string[] CC = Request("select numCommande,dateCommande from bonCommande where etat='CC';", BozoConnection).Split("\n");
@@ -178,7 +204,7 @@ namespace ProjetBDDFleurs
                                 CCtoCAL(num[i], mag[0]);
                                 Console.WriteLine($"Commande {num[i]} prête à être livrée");
                             }
-                            else { Console.WriteLine($"Stock insuffisant pour la commade {num[i]}, vérifier les stocks"); }
+                            else { Console.WriteLine($"Stock insuffisant pour la commande {num[i]}, vérifier les stocks"); }
                         }
                     }
                 }
