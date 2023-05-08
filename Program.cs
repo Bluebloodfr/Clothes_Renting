@@ -1,4 +1,4 @@
-﻿using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient;
 using System.Data;
 using System.Globalization;
 using System.Xml;
@@ -7,22 +7,14 @@ namespace ProjetBDDFleurs
 {
     class Program
     {
-        const string RootConnection = "SERVER=localhost;PORT=3306;DATABASE=Fleurs;UID=root;PASSWORD=Credoo78;";
+        const string RootConnection = "SERVER=localhost;PORT=3306;DATABASE=Fleurs;UID=root;PASSWORD=root;";
         const string BozoConnection = "SERVER=localhost;PORT=3306;DATABASE=Fleurs;UID=bozo;PASSWORD=bozo;";
 
         static void Main(string[] args)
         {
-            //InsertionTable("clients.txt", "Client"); //à exécuter qu'une fois/creation table
-            //BonCommande("scooby.doo@gmail.com");
-            //ExportTableToXml(RootConnection, "client");
-            Statistiques();
-
+            Menu();
+            //UpdateElementStock();
             /*
-             idées suite :
-             * définir la date livraison : null au début ? --> dès que le designer a validé les produits, on cherche quel mag peut assembler la commande 
-                                                           --> donne une date de livraison de dateCommande+3 max si un magasin est trouvé
-             * faire un affichage console de toutes les commandes non livrées et validées (ya tout les composants dispo dans un mag) 
-               --> l'ordre par numCommande croissant permet de donner un j de livraison (cb de livraisons par j ?)
              
              * XML : clients ayant commandé plusieurs fois durant le dernier mois, requete sql :
              select nomC, prenomC, client.courriel from client join bonCommande on client.courriel=bonCommande.courriel
@@ -33,6 +25,174 @@ namespace ProjetBDDFleurs
              where dateCommande>date_sub(curdate(), INTERVAL 6 MONTH) group by client.courriel having count(*)=0;
 
              */
+        }
+
+        static void Menu()
+        {
+            if (Request("select count(*) from client", BozoConnection) == "0")
+            {
+                InsertionTable("clients.txt", "client");
+                InsertionTable("magasin.txt", "magasin");
+                InsertionTable("bonCommande.txt", "bonCommande");
+                InsertionTable("elementCommande.txt", "elementCommande");
+                InsertionTable("elementStock.txt", "elementStock");
+            }
+            string res = "";
+            do
+            {
+                Console.Clear();
+                Console.WriteLine("Que faire ?\n" +
+                                  "(1) Se connecter\n" +
+                                  "(2) Créer un compte client\n" +
+                                  "(3) Connection employés\n");
+                do
+                {
+                    Console.WriteLine("Choisir une action :");
+                    res = Console.ReadLine();
+                } while (!(res == "1" || res == "2" || res == "3"));
+                if (res == "1")
+                {
+                    string[] login = Connection();
+                    if (login[0] != "" && login[1] != "")
+                    {
+                        Console.WriteLine("Que faire ?\n" +
+                                  "(1) Créer un bon de commande\n" +
+                                  "(2) Voir les commandes précédentes\n");
+                        do
+                        {
+                            Console.WriteLine("Choisir une action :");
+                            res = Console.ReadLine();
+                        } while (!(res == "1" || res == "2"));
+                        if (res == "1") { BonCommande(login[0]); }
+                        else { HistClient(login[0]); }
+                    }
+                }
+                else if (res == "2") { NouvClient(); }
+                else { LoginEmployes(); }
+                Console.WriteLine("\nMenu principal");
+                res = Continuer();
+            } while (res == "O");
+        }
+
+        static void LoginEmployes()
+        {
+            Console.WriteLine("\nLogin employés");
+            string id = StrNotNull("Identifiant : ");
+            string mdp = StrNotNull("Mot de passe : ");
+            if (id == "root" && mdp == "root")
+            {
+                string res = "";
+                do
+                {
+                    MenuEmployes();
+                    Console.WriteLine("\nMenu employés");
+                    res = Continuer();
+                } while (res == "O");
+            }
+        }
+
+        static void MenuEmployes()
+        {
+            Console.Clear();
+            string res = "";
+            Console.WriteLine("Que faire ?\n" +
+                              "(1) Voir les commandes à livrer\n" +
+                              "(2) vérifier les stocks\n" +
+                              "(3) Commandes à vérifier\n" +
+                              "(4) Statistiques\n");
+            do
+            {
+                Console.WriteLine("Choisir une action :");
+                res = Console.ReadLine();
+            } while (!(res == "1" || res == "2" || res == "3"));
+            if (res == "1")
+            {
+                string[] tmp = Request("select numCommande,dateCommande,adresseM,adresseLivraison,message,produit,description from bonCommande where etat='CAL';", BozoConnection).Split(";");
+                for (int i = 0; i < tmp.Length; i++)
+                {
+                    Console.Write(tmp[i] + ", ");
+                }
+                Console.WriteLine("\n");
+                do
+                {
+                    Console.WriteLine("Une commande a été livrée ? O/N");
+                    res = Console.ReadLine();
+                } while (!(res == "O" || res == "N"));
+                if (res == "O")
+                {
+                    res = StrNotNull("Entrer le numero de commande : ");
+                    Request($"update bonCommande set etat='CL',dateLivraison='{DateTime.Now.ToString("yyyy-MM-dd")}' where numCommande={res};", RootConnection);
+                }
+
+            }
+            else if (res == "2")
+            {
+                Console.WriteLine("Liste des articles en dessous de 10 unités");
+                string[] tmp = Request("select nomM, nomES,quantiteES,prixES from elementStock where quantiteES<100 and nomES not in('Gros Merci','Lamoureux','L exotique','Maman','Vive la mariee') order by nomM;", BozoConnection).Split(";");
+                for (int i = 0; i < tmp.Length; i++)
+                {
+                    Console.Write(tmp[i] + ", ");
+                }
+                Console.WriteLine("\n");
+                Console.WriteLine("\nListe des bouquets en dessous de 10 unités :");
+                tmp = Request("select nomM, nomES,quantiteES,prixES from elementStock where quantiteES<100 and nomES in('Gros Merci','Lamoureux','L exotique','Maman','Vive la mariee') order by nomM;", BozoConnection).Split(";");
+                for (int i = 0; i < tmp.Length; i++)
+                {
+                    Console.Write(tmp[i] + ", ");
+                }
+                res = StrNotNull("Ajouter des elements au stock ? O/N : ");
+                if (res == "O") { AjoutElementStock(); }
+            }
+            else if (res == "3")
+            {
+                Console.WriteLine("Que faire ?\n" +
+                              "(1) Commandes standard à vérifier\n" +
+                              "(2) Compléter les commandes personnalisées\n" +
+                              "(3) Ajouter éléments commande personnalisée\n");
+                do
+                {
+                    Console.WriteLine("Choisir une action :");
+                    res = Console.ReadLine();
+                } while (!(res == "1" || res == "2" || res == "3"));
+                if (res == "1") { Console.WriteLine("t'as oublié de faire ça"); }
+                else if (res == "2")
+                {
+                    string[] CC = Request("select numCommande,dateCommande from bonCommande where etat='CC';", BozoConnection).Split("\n");
+                    int[] num=new int[CC.Length];
+                    Console.WriteLine("numCommande,dateCommande");
+                    for (int i = 0; i < CC.Length; i++)
+                    {
+                        string[] tmp = CC[i].Split(";");
+                        for(int j=0;j<tmp.Length;j++)
+                        {
+                            if(j==0 && tmp[j]!="") { num[j] = Convert.ToInt32(tmp[j]); }
+                            else { num[j] = -1; }
+                            if (j < tmp.Length - 1) { Console.Write(tmp[j] + ", "); }
+                            else { Console.Write(tmp[j]); }
+                        }
+                        if (num[i] != -1)
+                        {
+                            string[] mag = GetMagasin(num[i]);
+                            if (mag[0] != "")
+                            {
+                                CCtoCAL(num[i], mag[0]);
+                                Console.WriteLine($"Commande {num[i]} prête à être livrée");
+                            }
+                            else { Console.WriteLine($"Stock insuffisant pour la commade {num[i]}, vérifier les stocks"); }
+                        }
+                    }
+                }
+                else
+                {
+                    string[] CPAV = Request("select numCommande,dateCommande,message,description from bonCommande where etat='CPAV';", BozoConnection).Split(";");
+                    for (int i = 0; i < CPAV.Length; i++)
+                    {
+                        Console.Write(CPAV[i] + ", ");
+                    }
+                    res = StrNotNull("Entrer le numero de commande : ");
+                    CPAVtoCC(Convert.ToInt32(res));
+                }
+            }
         }
 
         static void Statistiques()
@@ -62,7 +222,6 @@ namespace ProjetBDDFleurs
             Console.WriteLine($"Magasin ayant généré le plus de chiffre d'affaires: {magasinPlusDeChiffreAffaires}");
             //Console.WriteLine($"Fleur exotique la moins vendue: {fleurExotiqueMoinsVendue}");
         }
-
 
         static int NombreTotalDeCommandes()
         {
@@ -98,7 +257,7 @@ namespace ProjetBDDFleurs
         {
             string req = "SELECT AVG(prix) FROM bonCommande;";
             string result = Request(req, RootConnection);
-            return double.Parse(result);
+            return double.Parse(result.Replace('.', ','));
         }
 
         static string MeilleurClient(string periode)
@@ -149,7 +308,6 @@ namespace ProjetBDDFleurs
             string selectQuery = $"SELECT * FROM {tableName}";
             MySqlConnection connection = new MySqlConnection(StringConnection);
             connection.Open();
-
             using (MySqlCommand command = new MySqlCommand(selectQuery, connection))
             {
                 using (MySqlDataReader reader = command.ExecuteReader())
@@ -157,7 +315,6 @@ namespace ProjetBDDFleurs
                     // Création d'un DataTable pour stocker les données de la table
                     DataTable dataTable = new DataTable(tableName);
                     dataTable.Load(reader);
-
                     // Export des données du DataTable en XML
                     using (XmlTextWriter xmlWriter = new XmlTextWriter($"{tableName}.xml", System.Text.Encoding.UTF8))
                     {
@@ -168,52 +325,8 @@ namespace ProjetBDDFleurs
             }
             connection.Close();
         }
-            static void Menu()
-        {
-            if (Request("select count(*) from client", BozoConnection) == "0")
-            {
-                InsertionTable("clients.txt", "client");
-                InsertionTable("magasin.txt", "magasin");
-                InsertionTable("bonCommande.txt", "bonCommande");
-                InsertionTable("elementCommande.txt", "elementCommande");
-                InsertionTable("elementStock.txt", "elementStock");
-            }
-            string res = "";
-            do
-            {
-                Console.Clear();
-                Console.WriteLine("Que faire ?\n" +
-                                  "(1) Se connecter\n" +
-                                  "(2) Créer un compte client\n");
-                do
-                {
-                    Console.WriteLine("Choisir une action :");
-                    res = Console.ReadLine();
-                } while (!(res == "1" || res == "2"));
-                if (res == "1")
-                {
-                    string[] login = Connection();
-                    if (login[0] != "" && login[1] != "")
-                    {
-                        Console.WriteLine("Que faire ?\n" +
-                                  "(1) Créer un bon de commande\n" +
-                                  "(2) Voir les commandes précédentes\n");
-                        do
-                        {
-                            Console.WriteLine("Choisir une action :");
-                            res = Console.ReadLine();
-                        } while (!(res == "1" || res == "2"));
-                        if (res == "1") { BonCommande(login[0]); }
-                        else { HistClient(login[0]); }
-                    }
-                }
-                else { NouvClient(); }
-                Console.WriteLine();
-                res = Continuer();
-            } while (res == "O");
-        }
 
-        static void BonCommande(string email) //note : créer un menu pour se connecter avant (email/mdp)
+        static void BonCommande(string email)
         {
             Console.Clear();
             string tmp = Request("select max(numCommande) from bonCommande;", BozoConnection);
@@ -226,10 +339,8 @@ namespace ProjetBDDFleurs
             double coeffReduc = Reduction(email);
             double prixFinal = Convert.ToInt32(produit[1]) * coeffReduc;
             string message = Console.ReadLine();
-            string dateLivraison = "2023-05-05"; //à définir
             Console.Clear();
-            Console.WriteLine("Récapitulatif de la commande :\n" +
-                              "Date de la commande : " + dateCommande +
+            Console.WriteLine("Récapitulatif de la commande :" +
                             "\nChoix du produit : " + produit[0] +
                             "\nPrix : " + produit[1]);
             Console.Write("Réduction fidélité : ");
@@ -248,19 +359,21 @@ namespace ProjetBDDFleurs
             Console.WriteLine("Prix final : " + prixFinal);
             if (produit[2] != "") { Console.WriteLine("Description du produit souhaité : " + produit[2]); }
             Console.WriteLine("Adresse de livraison :" + adresseLivraison +
-                            "\nMessage :" + message +
-                            "\nDate Livraison : " + dateLivraison +
-                            "\n");
+                            "\nMessage :" + message + "\n");
             tmp = Continuer();
             if (tmp == "O")
             {
                 string etat = "VINV";
                 if (produit[2] != "") { etat = "CPAV"; }
-                string req = "insert into `Fleurs`.`bonCommande` values(" + numCommande + ",'" + dateCommande + "','" + email + "',null,'" + adresseLivraison + "','" + message + "','" + dateLivraison + "','" + produit[0] + "','" + etat + "'," + prixFinal.ToString(CultureInfo.CreateSpecificCulture("en-GB")) + ",'" + produit[2] + "');";
+                string req = $"insert into `Fleurs`.`bonCommande` values({numCommande},'{dateCommande}','{email}',null,'{adresseLivraison}','{message}',null,'{produit[0]}','{etat}',{prixFinal.ToString(CultureInfo.CreateSpecificCulture("en-GB"))},'{produit[2]}');";
                 try
                 {
                     Request(req, RootConnection);
                     Console.WriteLine("Commande enregistrée");
+                    if (produit[2] == "")
+                    {
+                        VINVtoCAL(numCommande, produit[0], Convert.ToDouble(produit[1].Replace('.', ',')));
+                    }
                 }
                 catch { Console.WriteLine("Erreur dans l'enregistrement de la commande\nVeuillez réessayer ultérieurement" + req); }
             }
@@ -273,7 +386,7 @@ namespace ProjetBDDFleurs
             double moy = 0;
             try
             {
-                moy = Convert.ToDouble(Request("select avg(c) from(select count(*) as c, courriel from bonCommande where courriel = '" + email + "' group by month(dateCommande)) as a;", BozoConnection));
+                moy = Convert.ToDouble(Request($"select avg(c) from(select count(*) as c, courriel from bonCommande where courriel = '{email}' group by month(dateCommande)) as a;", BozoConnection));
             }
             catch { moy = 0.0; }
             if (moy > 5) { coeff = 0.85; }
@@ -316,7 +429,7 @@ namespace ProjetBDDFleurs
                     produit[1] = "80";
                     break;
                 case "5":
-                    produit[0] = "Vive la mariée";
+                    produit[0] = "Vive la mariee";
                     produit[1] = "120";
                     break;
                 default:
@@ -335,7 +448,7 @@ namespace ProjetBDDFleurs
             Console.WriteLine("Login");
             string email = StrNotNull("Email : ");
             string mdp = StrNotNull("Mot de passe : ");
-            string req = "select count(*) from client where courriel='" + email + "' and motDePasse='" + mdp + "';";
+            string req = $"select count(*) from client where courriel='{email}' and motDePasse='{mdp}';";
             if (Request(req, RootConnection) == "1")
             {
                 Console.WriteLine("Connection réussie\n");
@@ -356,7 +469,7 @@ namespace ProjetBDDFleurs
             string adresse = "";
             string carte = "";
             string courriel = StrNotNull("Enter l'email : ");
-            if (Request("select count(*) from client where courriel='" + courriel + "';", RootConnection) == "0")
+            if (Request($"select count(*) from client where courriel='{courriel}';", RootConnection) == "0")
             {
                 do
                 {
@@ -383,11 +496,130 @@ namespace ProjetBDDFleurs
                     Console.WriteLine("\n");
                     res = Continuer();
                 } while (res != "O");
-                string req = "INSERT INTO `Fleurs`.`client` VALUES ('" + courriel + "','" + nom + "','" + prenom + "','" + tel + "','" + mdp + "','" + adresse + "','" + carte + "');";
+                string req = $"INSERT INTO `Fleurs`.`client` VALUES ('{courriel}','{nom}','{prenom}','{tel}','{mdp}','{adresse}','{carte}');";
                 try { Request(req, RootConnection); }
                 catch { Console.WriteLine("Erreur dans la création du compte"); }
             }
             else { Console.WriteLine("Email déjà utilisé !"); }
+        }
+
+        static void NouvElementStock(string nomMag, string adresseMag)
+        {
+            string nomES = StrNotNull("Nom de l'élément : ");
+            if (Request($"select count(*) from elementStock where nomES='{nomES}' and nomM='{nomMag}';", BozoConnection) == "0")
+            {
+                string quantite = StrNotNull("Quantité : ");
+                Console.Write("Disponibilité : ");
+                string dispo = Console.ReadLine();
+                string prix = StrNotNull("Prix : ");
+                try
+                {
+                    Request($"insert into elementStock values('{nomMag}','{adresseMag}','{nomES}','{quantite}','{dispo}','{prix}');", RootConnection);
+                }
+                catch { Console.WriteLine("Erreur création element"); }
+            }
+            else { Console.WriteLine("Nom déjà utilisé !"); }
+        }
+
+        static void NouvElementCommande(int numCommande, string nomEC, int quantite, double prix)
+        {
+            try
+            {
+                Request($"insert into `Fleurs`.`elementCommande` values('{numCommande}','{nomEC}','{quantite}','{prix.ToString(CultureInfo.CreateSpecificCulture("en-GB"))}';", RootConnection);
+            }
+            catch { Console.WriteLine("Erreur enregistrement élément commande"); }
+        }
+
+        static string[] GetMagasin(int numCommande) //return magasin[adresse, nom]
+        {
+            string[] magasin;
+            try
+            {
+                string a = Request($"SELECT m.adresseM, m.nomM FROM magasin m WHERE NOT EXISTS (SELECT 1 FROM elementCommande eC LEFT JOIN elementStock eS ON eC.nomEC = eS.nomES AND eS.adresseM = m.adresseM AND eC.quantiteEC < eS.quantiteES WHERE eC.numCommande = '{numCommande}' AND eS.nomES IS NULL);", BozoConnection);
+                string[] tmp = a.Split("\n");
+                magasin = tmp[0].Split(";");
+            }
+            catch { magasin = new string[2] { "", "" }; }
+            return magasin;
+        }
+
+        static void VINVtoCAL(int numCommande, string nomEC, double prix)
+        {
+            NouvElementCommande(numCommande, nomEC, 1, prix);
+            string[] mag = GetMagasin(numCommande);
+            if (mag[1] != "")
+            {
+                Request($"update elementStock set quantiteES=quantiteES-1 where adresseM='{mag[1]}' and nomES='{nomEC}';", BozoConnection);
+                Request($"update bonCommande set etat='CAL' where numCommande={numCommande};", RootConnection);
+            }
+        }
+
+        static void CCtoCAL(int numCommande, string adresseM)
+        {
+            string[] nomEC = Request($"select nomEC from elementCommande where numCommande='{numCommande}';", BozoConnection).Split(";");
+            string[] quantites = Request($"select quantiteEC from elementCommande where numCommande='{numCommande}';", BozoConnection).Split(";");
+            for (int i = 0; i < nomEC.Length; i++)
+            {
+                Request($"update elementStock set quantiteES=quantiteES-{quantites[i]} where adresseM='{adresseM}' and nomES='{nomEC[i]}';", BozoConnection);
+            }
+        }
+
+        static void CPAVtoCC(int numCommande)
+        {
+            string[] tmp = Request($"select description,prix from bonCommande where numCommande={numCommande};", BozoConnection).Split(";");
+            string description = tmp[0];
+            double prixTotal = Convert.ToDouble(tmp[1].Replace('.', ','));
+            string res = "";
+            string nomEC;
+            int quantite;
+            double prix;
+            Console.WriteLine("Ajout éléments commande n°" + numCommande
+                          + "\nDescription : " + description +
+                          "\nprix total : " + prixTotal);
+            do
+            {
+                nomEC = StrNotNull("Nom de l'élément : ");
+                quantite = Convert.ToInt32(StrNotNull("Quantité : "));
+                Console.Write("Prix : ");
+                prix = Convert.ToDouble(Console.ReadLine());
+                NouvElementCommande(numCommande, nomEC, quantite, prix);
+                Console.WriteLine("\nCréation éléments commande");
+                res = Continuer();
+            } while (res == "O");
+            Request("update bonCommande set etat='CC' where numCommande=" + numCommande + ";", RootConnection);
+        }
+
+        static void AjoutElementStock()
+        {
+            Console.WriteLine("Nom\t\tAdresse");
+            string[] magasins = Request("select nomM, adresseM from magasin;", BozoConnection).Split("\n");
+            for (int i = 0; i < magasins.Length; i++)
+            {
+                Console.WriteLine("(" + i + ") : " + magasins[i].Split(";")[0] + "   " + magasins[i].Split(";")[1]);
+            }
+            string res = StrNotNull("Choisir un magasin : ");
+            string nomMag = magasins[Convert.ToInt32(res)].Split(";")[0];
+            string adresseMag = magasins[Convert.ToInt32(res)].Split(";")[1];
+            string[] stock = Request($"select nomES, quantiteES from elementStock where adresseM='{adresseMag}';", BozoConnection).Split("\n");
+            Console.WriteLine("\nNom\t\tquantité");
+            for (int i = 0; i < stock.Length; i++)
+            {
+                Console.WriteLine($"({i}) : " + stock[i].Split(";")[0] + "   " + stock[i].Split(";")[1]);
+            }
+            Console.WriteLine($"({stock.Length}) : Ajouter un nouvel élément");
+            res = StrNotNull("Choisir un élément : ");
+            if (Convert.ToInt32(res) >= stock.Length) { NouvElementStock(nomMag, adresseMag); }
+            else
+            {
+                string nomES = stock[Convert.ToInt32(res)].Split(";")[0];
+                Console.WriteLine();
+                res = StrNotNull("Quantité à ajouter : ");
+                try
+                {
+                    Request($"update elementStock set quantiteES=quantiteES+{res} where adresseM='{adresseMag}' and nomES='{nomES}';", RootConnection);
+                }
+                catch { Console.WriteLine("Erreur update quantité"); }
+            }
         }
 
         static void HistClient(string email)
@@ -435,40 +667,6 @@ namespace ProjetBDDFleurs
             return res;
         }
 
-        static void AffichageCommande()
-        {
-            /*
-             VINV Commande standard pour laquelle un employé doit vérifier l’inventaire.
-             CC Commande complète. Tous les items de la commande ont été indiqués (pour les
-                commandes personnalisées) et tous ces items se trouvent en stock.
-             CPAV Commande personnalisée à vérifier. Lorsqu’un client passe une commande
-                personnalisée, son état est « CPAV ». Un employé vérifie la commande et rajoute
-                des items si nécessaire. Ensuite, il change l’état de la commande à « CC ».
-             CAL Commande à livrer. La commande est prête !
-             CL Commande livrée. La commande a été livrée à l’adresse indiquée par le client. 
-             */
-            string res = "";
-            Console.WriteLine("    Nom                                   Prix        Code\n" +
-                              "(1) Liste des commandes standard à vérifier\n" +
-                              "(2) Liste des commandes personnalisées à vérifier\n" +
-                              "(3) Liste des commandes complètes\n" +
-                              "(4) Liste des commandes à livrer\n" +
-                              "(5) Historique des commandes livrées");
-            do
-            {
-                Console.WriteLine("Choisir qqch :");
-                res = Console.ReadLine();
-            } while (!(res == "1" || res == "2" || res == "3" || res == "4" || res == "5" || res == "6" || res == "7"));
-
-            /*
-             * 1    
-             * 2    
-             * 3    
-             * 4
-             * 
-            */
-        }
-
         static void InsertionTable(string path, string nomTable)
         {
             string[] table = File.ReadAllLines(path);
@@ -483,26 +681,6 @@ namespace ProjetBDDFleurs
                 req += "'" + elements[elements.Length - 1] + "');";
                 try { Request(req, RootConnection); }
                 catch { Console.WriteLine("Erreur insertion table " + nomTable); }
-            }
-        }
-
-        static void Sauvegarde() //à finir
-        {
-            string tableClient = Request("select * from client;", BozoConnection);
-            CreateWrite("client.txt", tableClient);
-            //CreateWrite("bonCommande.txt",tableCommande)
-            Console.WriteLine("Sauvegarde effectuée");
-        }
-
-        static void CreateWrite(string path, string str)
-        {
-            StreamWriter sw;
-            if (!File.Exists(path)) { sw = File.CreateText(path); }
-            else
-            {
-                sw = new StreamWriter(path);
-                sw.WriteLine(str);
-                sw.Close();
             }
         }
 
@@ -532,7 +710,7 @@ namespace ProjetBDDFleurs
                     }
                     str += currentRowAsString + "\n"; //'\n' et ';' permettent de récupérer les données sous le format csv
                 }
-                str = str.Substring(0, str.Length - 1);
+                if (str.Length > 0) { str = str.Substring(0, str.Length - 1); }
             }
             connection.Close();
             return str;
