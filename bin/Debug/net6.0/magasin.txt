@@ -1,3 +1,0 @@
-5 Rue de Castellane, 75008 Paris;Magasin1
-68 Avenue de Villiers, 75017 Paris;Magasin2
-79 Rue Galande, 75005 Paris;Magasin3
