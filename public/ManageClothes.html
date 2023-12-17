@@ -1,0 +1,60 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Clothes</title>
+</head>
+<body>
+<h1>Manage Clothes Inventory</h1>
+<div id="clothesList"></div>
+
+<script>
+    async function fetchAndDisplayClothes() {
+        try {
+            const response = await fetch('/api/clothes');
+            const clothes = await response.json();
+            const listElement = document.getElementById('clothesList');
+            listElement.innerHTML = '';
+            clothes.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.innerHTML = `
+                        Name: ${item.name}, Description: ${item.description}, Size: ${item.size},
+                        Price per Hour: ${item.pricePerHour}, State: ${item.state}
+                        <button onclick="updateClothes('${item.id}')">Update</button>
+                        <button onclick="deleteClothes('${item.id}')">Delete</button>
+                    `;
+                listElement.appendChild(itemElement);
+            });
+        } catch (error) {
+            console.error('Error fetching clothes:', error);
+        }
+    }
+
+    fetchAndDisplayClothes();
+
+    async function updateClothes(id) {
+        const pricePerHour = prompt("Enter new price per hour:");
+        const state = prompt("Enter new state (New, Used, Deteriorating):");
+
+        try {
+            await fetch('/api/clothes/update/' + id, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pricePerHour, state })
+            });
+            fetchAndDisplayClothes(); // Refresh the list
+        } catch (error) {
+            console.error('Error updating clothes:', error);
+        }
+    }
+
+    async function deleteClothes(id) {
+        try {
+            await fetch('/api/clothes/delete/' + id, { method: 'DELETE' });
+            fetchAndDisplayClothes(); // Refresh the list
+        } catch (error) {
+            console.error('Error deleting clothes:', error);
+        }
+    }
+</script>
+</body>
+</html>

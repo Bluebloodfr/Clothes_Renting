@@ -1,0 +1,45 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Clothes</title>
+</head>
+<body>
+<form id="clothesForm">
+    <input type="text" name="name" placeholder="Name" required><br>
+    <input type="text" name="description" placeholder="Description" required><br>
+    <input type="text" name="size" placeholder="Size" required><br>
+    <input type="text" name="pricePerHour" placeholder="Price Per Hour" required><br>
+    <select name="state" required>
+        <option value="New">New</option>
+        <option value="Used">Used</option>
+        <option value="Deteriorating">Deteriorating</option>
+    </select><br>
+    <button type="submit">Add to Inventory</button>
+</form>
+
+<script>
+    document.getElementById('clothesForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const data = Object.fromEntries(formData.entries());
+        try {
+            const response = await fetch('/api/clothes/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (response.ok) {
+                console.log('Clothes added successfully');
+                alert('Clothes added successfully');
+            } else {
+                console.error('Failed to add clothes');
+                alert('Failed to add clothes');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error occurred');
+        }
+    });
+</script>
+</body>
+</html>
