@@ -2,6 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Manage Clothes</title>
+    <link rel="stylesheet" href="manageClothes.css">
 </head>
 <body>
 <h1>Manage Clothes Inventory</h1>
@@ -16,12 +17,13 @@
             listElement.innerHTML = '';
             clothes.forEach(item => {
                 const itemElement = document.createElement('div');
+                // Inside your JavaScript, where you create buttons
                 itemElement.innerHTML = `
-                        Name: ${item.name}, Description: ${item.description}, Size: ${item.size},
-                        Price per Hour: ${item.pricePerHour}, State: ${item.state}
-                        <button onclick="updateClothes('${item.id}')">Update</button>
-                        <button onclick="deleteClothes('${item.id}')">Delete</button>
-                    `;
+                    Name: ${item.name}, Description: ${item.description}, Size: ${item.size},
+                    Price per Hour: ${item.pricePerHour}, State: ${item.state}
+                    <button class="update-button" onclick="updateClothes('${item.id}')">Update</button>
+                    <button class="delete-button" onclick="deleteClothes('${item.id}')">Delete</button>
+                `;
                 listElement.appendChild(itemElement);
             });
         } catch (error) {
