@@ -1,0 +1,78 @@
+body, h2 {
+    margin: 0;
+    padding: 0;
+}
+
+/* Center the content vertically and horizontally */
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f7f7f7;
+    font-family: Arial, sans-serif;
+}
+
+h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+#clothing-list {
+    width: 100%;
+    max-width: 800px;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+/* Style the cart section */
+#cart-section {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+}
+
+#cart-section button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#cart-count {
+    margin-left: 10px;
+    font-size: 16px;
+    color: #007bff;
+    font-weight: bold;
+}
+
+#clothing-list div {
+    border: 2px solid green;
+    padding: 10px;
+    margin: 10px;
+    background-color: #f0f0f0; /* Light gray background */
+    border-radius: 10px;
+    display: inline-block;
+    width: 300px; /* Adjust width as needed */
+}
+
+/* Style for the "Add to Cart" button */
+#clothing-list button {
+    background-color: pink;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Hover effect for the button */
+#clothing-list button:hover {
+    background-color: #ff66b2; /* Light pink on hover */
+}

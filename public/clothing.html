@@ -1,0 +1,62 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clothing Items</title>
+  <link rel="stylesheet" type="text/css" href="clothing.css">
+</head>
+<body>
+<h2>Clothing Items</h2>
+<div id="clothing-list">
+
+</div>
+
+<div id="cart-section">
+  <button onclick="viewCart()">View Cart</button>
+  <span id="cart-count">0</span>
+</div>
+
+<script>
+  async function fetchAndDisplayClothes() {
+    try {
+      const response = await fetch('/api/clothes');
+      const clothes = await response.json();
+      const listElement = document.getElementById('clothing-list');
+      listElement.innerHTML = '';
+      clothes.forEach(item => {
+        const itemElement = document.createElement('div');
+        itemElement.innerHTML = `
+                        <h2>${item.name}</h2>
+                        <p>Description: ${item.description}</p>
+                        <p>Size: ${item.size}</p>
+                        <p>Price per Hour: ${item.pricePerHour}</p>
+                        <p>State: ${item.state}</p>
+                        <button onclick="addToCart(${item.id})">Add to Cart</button>
+                    `;
+        listElement.appendChild(itemElement);
+      });
+    } catch (error) {
+      console.error('Error fetching clothes:', error);
+    }
+  }
+  fetchAndDisplayClothes();
+
+  const shoppingCart = [];
+  function addToCart(itemId) {
+    const itemToAdd = clothingItems.find(item => item.id === itemId);
+
+    if (itemToAdd) {
+      shoppingCart.push(itemToAdd);
+      updateCartDisplay();
+    }
+  }
+  function updateCartDisplay() {
+    const cartCount = document.getElementById('cart-count');
+    cartCount.textContent = shoppingCart.length;
+  }
+  function viewCart() {
+    window.location.href = '/cart.html';
+  }
+</script>
+</body>
+</html>
