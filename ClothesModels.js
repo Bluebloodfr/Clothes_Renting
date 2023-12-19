@@ -1,10 +1,10 @@
 import { Model, DataTypes } from 'sequelize';
-import sequelize from './sequelize.js'; // Adjust the path to your Sequelize config
+import sequelize from './sequelize.js';
 
 export class ClothesModel extends Model {}
 
 ClothesModel.init({
-    id: {
+    clothes_id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
@@ -28,6 +28,10 @@ ClothesModel.init({
     state: {
         type: DataTypes.ENUM('New', 'Used', 'Deteriorating'), // Define the possible states
         allowNull: false,
+    },
+    imageURL: {
+        type: DataTypes.STRING,
+        allowNull: true,
     },
 }, {
     sequelize,

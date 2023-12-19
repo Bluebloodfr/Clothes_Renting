@@ -1,16 +1,42 @@
+import sequelize from './sequelize.js';
 import ClothesModel from './ClothesModels.js';
+import AccountsModel from './AccountsModels.js';
+import OrdersModel from './OrdersModels.js';
+import FinancesModel from './FinancesModels.js';
+
+OrdersModel.belongsTo(AccountsModel, { foreignKey: 'account_id' });
+AccountsModel.hasMany(OrdersModel, { foreignKey: 'account_id' });
+
+FinancesModel.belongsTo(OrdersModel, { foreignKey: 'order_id' });
+OrdersModel.hasMany(FinancesModel, { foreignKey: 'order_id' });
+
+OrdersModel.belongsTo(ClothesModel, { foreignKey: 'clothes_id' });
+ClothesModel.hasMany(OrdersModel, { foreignKey: 'clothes_id' });
 
 async function syncDatabase() {
     try {
-        await ClothesModel.sync({ force: true }); // This will create the table
+        await sequelize.sync({ force: true });
         console.log('Database synchronized successfully.');
 
         // Add some sample rows
-        await ClothesModel.bulkCreate([
-            { name: 'Shirt', description: 'Casual shirt', size: 'M', pricePerHour: 2.55, state: 'New'  },
-            { name: 'Dress', description: 'Summer dress', size: 'S', pricePerHour: 2.55, state: 'New' },
-            { name: 'Jeans', description: 'Blue denim jeans', size: 'L', pricePerHour: 2.55, state: 'New' },
-            { name: 'Jacket', description: 'Leather jacket', size: 'XL', pricePerHour: 2.55, state: 'New' },
+        const clothes = await ClothesModel.bulkCreate([
+            { name: 'Shirt', description: 'Casual shirt', size: 'M', pricePerHour: 2.55, state: 'New', imageURL: null },
+            { name: 'Dress', description: 'Summer dress', size: 'S', pricePerHour: 2.55, state: 'New', imageURL: null },
+            { name: 'Jeans', description: 'Blue denim jeans', size: 'L', pricePerHour: 2.55, state: 'New', imageURL: null },
+            { name: 'Jacket', description: 'Leather jacket', size: 'XL', pricePerHour: 2.55, state: 'New', imageURL: null },
+        ]);
+
+        // Add some sample rows for AccountsModel
+        const accounts = await AccountsModel.bulkCreate([
+            { username: 'user1', email: 'user1@example.com', password_hash: 'hash1', role: 'customer' },
+            { username: 'user2', email: 'user2@example.com', password_hash: 'hash2', role: 'customer' },
+            { username: 'admin', email: 'admin@example.com', password_hash: 'adminhash', role: 'admin' }
+        ]);
+
+        // Add some sample rows for OrdersModel
+        const orders = await OrdersModel.bulkCreate([
+            { account_id: accounts[0].account_id, clothes_id: clothes[0].clothes_id, rental_start_date: new Date(), rental_end_date: new Date(), status: 'pending' },
+            { account_id: accounts[1].account_id, clothes_id: clothes[1].clothes_id, rental_start_date: new Date(), rental_end_date: new Date(), status: 'rented' }
         ]);
 
         console.log('Sample rows added to the table.');
