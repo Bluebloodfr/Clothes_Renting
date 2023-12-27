@@ -47,7 +47,7 @@ Distributed under the XYZ License. See LICENSE for more information.
 Contact
 Your Name - @your_twitter
 
-Project Link: https://github.com/your_username/project_name
+Project Link: (https://github.com/Bluebloodfr/Clothes_Renting)
 
 
 Remember to replace placeholders like `your_username`, `project_name`, and other details with your specific project information. Also, you can enhance the `README` by including sections like 'Built With', 'Contributing', 'Versioning', 'Authors', and 'Acknowledgments', depending on your project's complexity and needs.
