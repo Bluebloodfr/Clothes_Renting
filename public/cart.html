@@ -1,0 +1,97 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart - Clothes Rental Service</title>
+    <link rel="stylesheet" href="cart.css">
+</head>
+<body>
+<div id="cartContainer">
+    <h1>Your Cart</h1>
+    <div id="cartItems">
+    </div>
+    <label for="rentalEnd">Rental End Date:</label>
+    <input type="date" id="rentalEnd">
+    <button id="checkoutButton" onclick="createOrderAndCheckout()">Checkout</button>
+</div>
+<button id="backButton" onclick="window.location.href='/clothing.html'">Back to Clothes Selection</button>
+<script>
+    function deleteCookie(name) {
+        document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+    }
+    function getCookie(name) {
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0;i < ca.length;i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        }
+        return null;
+    }
+    let shoppingCart = JSON.parse(getCookie('shoppingCart') || '[]');
+    deleteCookie('shoppingCart');
+
+    function parseJwt(token) {
+        if (!token) { return null; }
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
+    }
+    async function loadCartItems() {
+        const cartItemsContainer = document.getElementById('cartItems');
+        cartItemsContainer.innerHTML = '';
+
+        shoppingCart.forEach(item => {
+            cartItemsContainer.innerHTML += `<p>${item.name} - ${item.pricePerDay}</p>`;
+        });
+    }
+
+    function createOrderAndCheckout() {
+        const rentalEnd = document.getElementById('rentalEnd').value;
+        const rentalStart = new Date();
+        const rentalEndParsed = new Date(rentalEnd);
+        if (!rentalEnd) {
+            alert('Please select a rental end date.');
+            return;
+        }
+        if (rentalEndParsed < rentalStart) {
+            alert('The rental end date cannot be before the rental start date.');
+            return;
+        }
+        const rentalDays = (rentalEndParsed - rentalStart) / (1000 * 60 * 60 * 24);
+        let userToken = getCookie('userToken');
+        let decodedToken = parseJwt(userToken);
+        let userId = decodedToken ? decodedToken.userId : null;
+        fetch('/api/users/checkout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${userToken}`
+            },
+            body: JSON.stringify({ userId, cartItems: shoppingCart, rentalEnd }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.order_id) {
+                    const totalAmount = shoppingCart.reduce((sum, item) => sum + (item.pricePerDay * rentalDays), 0);
+                    window.location.href = `/payment.html?amount=${totalAmount}&order_id=${data.order_id}`;
+                } else {
+                    console.error('Error: Order ID not returned.');
+                    alert('There was an error processing your order. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while processing your checkout.');
+            });
+    }
+
+    window.onload = loadCartItems;
+</script>
+</body>
+</html>

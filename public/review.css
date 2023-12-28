@@ -1,0 +1,49 @@
+body {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background-color: #ffefd5;
+    text-align: center;
+    color: #333;
+}
+
+h1 {
+    color: #ff69b4;
+    font-size: 2.5em;
+    text-shadow: 2px 2px #ffff00;
+}
+
+form {
+    background-color: #add8e6;
+    padding: 20px;
+    border-radius: 15px;
+    display: inline-block;
+    margin-top: 20px;
+}
+
+input[type="number"], textarea {
+    border: 2px dashed #ff4500;
+    background-color: #7fffd4;
+    padding: 5px;
+}
+
+button[type="submit"] {
+    display: block;
+    margin-top: 20px;
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+button {
+    background-color: #32cd32;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px #008000;
+}
+
+button:hover {
+    background-color: #98fb98;
+}
+

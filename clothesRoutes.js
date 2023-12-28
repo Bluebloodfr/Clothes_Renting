@@ -6,8 +6,8 @@ const router = express.Router();
 
 router.post('/add', async (req, res) => {
     try {
-        const { name, description, size, pricePerHour, state } = req.body;
-        const newClothingItem = await ClothesModel.create({ name, description, size, pricePerHour, state, imageURL: null });
+        const { name, description, size, pricePerDay, state } = req.body;
+        const newClothingItem = await ClothesModel.create({ name, description, size, pricePerDay, state, imageURL: null });
         res.status(201).json(newClothingItem);
     } catch (error) {
         console.error(error);
@@ -39,8 +39,8 @@ router.delete('/delete/:clothes_id', async (req, res) => {
 router.put('/update/:clothes_id', async (req, res) => {
     try {
         const clothes_id = req.params.clothes_id;
-        const { pricePerHour, state } = req.body;
-        await ClothesModel.update({ pricePerHour, state }, { where: { clothes_id } });
+        const { pricePerDay, state } = req.body;
+        await ClothesModel.update({ pricePerDay, state }, { where: { clothes_id } });
         res.send('Item updated successfully');
     } catch (error) {
         console.error(error);

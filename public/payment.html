@@ -1,0 +1,108 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Page</title>
+    <link rel="stylesheet" href="payment.css">
+</head>
+<body>
+<div class="payment-container">
+    <h2>Payment Form</h2>
+    <form id="paymentForm">
+        <div class="form-group">
+            <label for="amount">Amount:</label>
+            <input type="number" id="amount" name="amount" required readonly>
+        </div>
+        <div class="form-group">
+            <label for="cardNumber">Card Number:</label>
+            <input type="text" id="cardNumber" name="cardNumber" required>
+        </div>
+        <div class="form-group">
+            <label for="expDate">Expiration Date (MM/YY):</label>
+            <input type="text" id="expDate" name="expDate" required>
+        </div>
+        <div class="form-group">
+            <label for="cvv">CVV:</label>
+            <input type="text" id="cvv" name="cvv" required>
+        </div>
+        <button type="submit">Submit Payment</button>
+    </form>
+</div>
+<button id="backToCart" onclick="goBackToCart()">Go Back to Cart</button>
+
+<script>
+    function getCookie(name) {
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0;i < ca.length;i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        }
+        return null;
+    }
+    function parseJwt(token) {
+        if (!token) { return null; }
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
+    }
+    const queryParams = new URLSearchParams(window.location.search);
+    const amount = queryParams.get('amount');
+    const order_id = queryParams.get('order_id');
+    function goBackToCart() {
+        fetch('/api/users/orders/remove/' + order_id, { method: 'DELETE' })
+            .then(() => {
+                window.location.href = '/cart.html';
+            })
+            .catch(error => console.error('Error:', error));
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+
+
+        if (amount) {
+            document.getElementById('amount').value = amount;
+        }
+
+        const paymentForm = document.getElementById('paymentForm');
+        paymentForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const cardNumber = document.getElementById('cardNumber').value;
+            const expDate = document.getElementById('expDate').value;
+            const cvv = document.getElementById('cvv').value;
+            let userToken = getCookie('userToken');
+            let decodedToken = parseJwt(userToken);
+            let account_id = decodedToken ? decodedToken.userId : null;
+
+            const paymentData = {
+                account_id,
+                order_id,
+                amount,
+                cardNumber,
+                expDate,
+                cvv
+            };
+            fetch('/api/pay/payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(paymentData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Payment response:', data);
+                    window.location.href = '/intermediary.html';
+                })
+                .catch((error) => {
+                    console.error('Payment error:', error);
+                });
+        });
+    });
+</script>
+</body>
+</html>

@@ -13,10 +13,6 @@ OrdersModels.init({
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    clothes_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-    },
     rental_start_date: {
         type: DataTypes.DATE,
         allowNull: false
@@ -31,7 +27,8 @@ OrdersModels.init({
     },
 }, {
     sequelize,
-    modelName: 'Orders'
+    modelName: 'Orders',
+    tableName: 'Orders'
 });
 
 export default OrdersModels;

@@ -1,0 +1,31 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Review</title>
+    <link rel="stylesheet" href="review.css">
+</head>
+<body>
+<h1>Review Your Order</h1>
+
+<form id="review-form">
+    <p>Rate the quality of the order (out of 5):</p>
+    <input type="number" id="order-quality" min="1" max="5" required>
+
+    <p>Rate the quality of the service (out of 5):</p>
+    <input type="number" id="service-quality" min="1" max="5" required>
+
+    <p>Write a short review:</p>
+    <textarea id="review-text" rows="4" required></textarea>
+</form>
+<button type="submit" onclick="submitReview()">Submit Review</button>
+
+<script>
+    function submitReview() {
+        document.getElementById('review-form').submit();
+        alert("Thank you for your review!");
+        window.location.href = '/profile.html';
+    }
+</script>
+</body>
+</html>

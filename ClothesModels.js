@@ -9,6 +9,10 @@ ClothesModel.init({
         autoIncrement: true,
         primaryKey: true,
     },
+    order_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
     name: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -21,12 +25,12 @@ ClothesModel.init({
         type: DataTypes.STRING,
         allowNull: false,
     },
-    pricePerHour: {
-        type: DataTypes.DECIMAL(10, 2), // Adjust the precision as needed
+    pricePerDay: {
+        type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
     },
     state: {
-        type: DataTypes.ENUM('New', 'Used', 'Deteriorating'), // Define the possible states
+        type: DataTypes.ENUM('New', 'Used', 'Deteriorating'),
         allowNull: false,
     },
     imageURL: {
@@ -35,7 +39,8 @@ ClothesModel.init({
     },
 }, {
     sequelize,
-    modelName: 'Clothes'
+    modelName: 'Clothes',
+    tableName: 'Clothes'
 });
 
 export default ClothesModel;

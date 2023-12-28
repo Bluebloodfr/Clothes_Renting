@@ -1,0 +1,31 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <link rel="stylesheet" type="text/css" href="intermediary.css">
+</head>
+<body>
+<h1>Welcome to Our Service</h1>
+
+<div class="navigation">
+    <h2>What would you like to do?</h2>
+    <button onclick="window.location.href='/clothing.html'">Browse Clothing Items</button>
+    <button onclick="window.location.href='/profile.html'">View My Profile</button>
+    <div class="logout-button">
+        <button onclick="logout()">Log Out</button>
+    </div>
+
+    <script>
+        function deleteCookie(name) {
+            document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+        }
+
+        function logout() {
+            deleteCookie('userToken');
+            window.location.href = '/login.html';
+        }
+    </script>
+</div>
+</body>
+</html>

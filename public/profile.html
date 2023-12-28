@@ -1,0 +1,143 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+<h1>User Profile</h1>
+
+<section id="past-orders">
+    <h2>Past Orders</h2>
+    <ul id="orders-list"></ul>
+</section>
+
+<script>
+
+    function getCookie(name) {
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0;i < ca.length;i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        }
+        return null;
+    }
+    function parseJwt(token) {
+        if (!token) { return null; }
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
+    }
+    let userToken = getCookie('userToken');
+    let decodedToken = parseJwt(userToken);
+    let account_id = decodedToken ? decodedToken.userId : null;
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch(`/api/users/orders/${account_id}`)
+            .then(response => response.json())
+            .then(orders => {
+                const ordersList = document.getElementById('orders-list');
+                orders.forEach(order => {
+                    const orderItem = document.createElement('li');
+                    orderItem.textContent = `Order ID: ${order.order_id}`;
+                    const clothesList = document.createElement('ul');
+
+                    const reviewButton = document.createElement('button');
+                    reviewButton.textContent = 'Review';
+                    reviewButton.onclick = function() {
+                        window.location.href = `/review.html?order_id=${order.order_id}`;
+                    };
+
+                    order.clothes.forEach(clothesItem => {
+                        const clothesDetail = document.createElement('li');
+                        clothesDetail.textContent = `Name: ${clothesItem.name}, Size: ${clothesItem.size}, State: ${clothesItem.state}`;
+                        clothesList.appendChild(clothesDetail);
+                    });
+
+                    orderItem.appendChild(clothesList);
+                    orderItem.appendChild(reviewButton);
+                    ordersList.appendChild(orderItem);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+</script>
+<section id="update-profile">
+    <h2>Update Profile</h2>
+    <form id="profile-form">
+        <input type="text" id="username" placeholder="Username">
+        <input type="email" id="email" placeholder="Email">
+        <button type="submit">Update Profile</button>
+    </form>
+</section>
+<script>
+    document.getElementById('profile-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
+
+        fetch('/api/users/updateProfile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ account_id, username, email })
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Profile updated successfully:', data);
+            })
+            .catch(error => {
+                console.error('Error updating profile:', error);
+            });
+    });
+</script>
+
+<section id="change-password">
+    <h2>Change Password</h2>
+    <form id="password-form">
+        <input type="password" id="current-password" placeholder="Current Password">
+        <input type="password" id="new-password" placeholder="New Password">
+        <input type="password" id="confirm-password" placeholder="Confirm New Password">
+        <button type="submit">Change Password</button>
+    </form>
+</section>
+<script>
+    document.getElementById('password-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const currentPassword = document.getElementById('current-password').value;
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        if (newPassword !== confirmPassword) {
+            alert("New passwords do not match.");
+            return;
+        }
+        fetch('/api/users/changePassword', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ account_id, currentPassword, newPassword })
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Password changed successfully:', data);
+            })
+            .catch(error => {
+                console.error('Error changing password:', error);
+            });
+    });
+</script>
+<button onclick="window.location.href='/intermediary.html'">Back to Main Page</button>
+</body>
+</html>

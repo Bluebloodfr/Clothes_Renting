@@ -7,7 +7,7 @@
 <body>
 <h1>Manage Clothes Inventory</h1>
 <div id="clothesList"></div>
-
+<button id="backToAdmin" onclick="window.location.href='/admin.html'">Back to Admin Page</button>
 <script>
     async function fetchAndDisplayClothes() {
         try {
@@ -21,7 +21,7 @@
                         <h2>${item.name}</h2>
                         <p>Description: ${item.description}</p>
                         <p>Size: ${item.size}</p>
-                        <p>Price per Hour: ${item.pricePerHour}</p>
+                        <p>Price per Day: ${item.pricePerDay}</p>
                         <p>State: ${item.state}</p>
                         <button onclick="updateClothes('${item.clothes_id}')">Update</button>
                         <button onclick="deleteClothes('${item.clothes_id}')">Delete</button>
@@ -36,15 +36,15 @@
 
     fetchAndDisplayClothes();
     async function updateClothes(clothes_id) {
-        const pricePerHour = prompt("Enter new price per hour:");
+        const pricePerDay = prompt("Enter new price per day:");
         const state = prompt("Enter new state (New, Used, Deteriorating):");
         try {
             await fetch('/api/clothes/update/' + clothes_id, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pricePerHour, state })
+                body: JSON.stringify({ pricePerDay, state })
             });
-            fetchAndDisplayClothes(); // Refresh the list
+            fetchAndDisplayClothes();
         } catch (error) {
             console.error('Error updating clothes:', error);
         }

@@ -11,9 +11,21 @@
     <input type="email" id="email" placeholder="Email" required><br>
     <input type="password" id="password" placeholder="Password" required><br>
     <button type="submit">Login</button>
+    <button id="backToMainPage" onclick="window.location.href='/landing.html'">Go Back to Main Page</button>
 </form>
 
 <script>
+
+    function setCookie(name, value, days) {
+        var expires = "";
+        if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days*24*60*60*1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+    }
+
     document.getElementById('login-form').addEventListener('submit', function(event) {
         event.preventDefault();
 
@@ -31,7 +43,12 @@
             .then(data => {
                 if (data.token) {
                     console.log('Login successful:', data.message);
-                    window.location.href = '/clothing.html';
+                    setCookie('userToken', data.token, 7);
+                    if (data.userRole === 'admin') {
+                        window.location.href = '/admin.html';
+                    } else {
+                        window.location.href = '/intermediary.html';
+                    }
                 } else {
                     console.error('Login failed:', data.error);
                 }

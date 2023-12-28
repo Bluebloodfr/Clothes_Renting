@@ -52,12 +52,31 @@ button[type="submit"]:hover {
     background-color: #0056b3;
 }
 
-/* Center the form */
 .container {
     text-align: center;
 }
 
-/* Adjustments for smaller screens */
+
+#backToMainPage {
+    position: fixed;
+    left: 10px;
+    bottom: 10px;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 4px #0056b3;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+#backToMainPage:hover {
+    background-color: #0056b3;
+    box-shadow: 0 2px #003875;
+}
+
+
 @media screen and (max-width: 600px) {
     .container {
         padding: 10px;

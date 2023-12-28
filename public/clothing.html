@@ -15,12 +15,24 @@
   <button onclick="viewCart()">View Cart</button>
   <span id="cart-count">0</span>
 </div>
+<button id="backToMainPage" onclick="window.location.href='/intermediary.html'">Go Back to Main Page</button>
 
 <script>
+
+  function setCookie(name, value, days) {
+    var expires = "";
+    if (days) {
+      var date = new Date();
+      date.setTime(date.getTime() + (days*24*60*60*1000));
+      expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+  }
+  let clothes = [];
   async function fetchAndDisplayClothes() {
     try {
       const response = await fetch('/api/clothes');
-      const clothes = await response.json();
+      clothes = await response.json();
       const listElement = document.getElementById('clothing-list');
       listElement.innerHTML = '';
       clothes.forEach(item => {
@@ -29,9 +41,10 @@
                         <h2>${item.name}</h2>
                         <p>Description: ${item.description}</p>
                         <p>Size: ${item.size}</p>
-                        <p>Price per Hour: ${item.pricePerHour}</p>
+                        <p>Price per Day: ${item.pricePerDay}</p>
                         <p>State: ${item.state}</p>
-                        <button onclick="addToCart(${item.id})">Add to Cart</button>
+                        <button id="addToCart-${item.clothes_id}" onclick="addToCart(${item.clothes_id})">Add to Cart</button>
+                        <button id="removeFromCart-${item.clothes_id}" onclick="removeFromCart(${item.clothes_id})" style="display: none;">Remove</button>
                     `;
         listElement.appendChild(itemElement);
       });
@@ -43,13 +56,27 @@
 
   const shoppingCart = [];
   function addToCart(itemId) {
-    const itemToAdd = clothingItems.find(item => item.id === itemId);
+    const itemToAdd = clothes.find(item => item.clothes_id === itemId);
 
     if (itemToAdd) {
       shoppingCart.push(itemToAdd);
+      document.getElementById(`addToCart-${itemId}`).disabled = true;
+      document.getElementById(`removeFromCart-${itemId}`).style.display = 'inline';
       updateCartDisplay();
+      setCookie('shoppingCart', JSON.stringify(shoppingCart), 7);
     }
   }
+  function removeFromCart(itemId) {
+    const itemIndex = shoppingCart.findIndex(item => item.clothes_id === itemId);
+    if (itemIndex > -1) {
+      shoppingCart.splice(itemIndex, 1);
+      document.getElementById(`addToCart-${itemId}`).disabled = false;
+      document.getElementById(`removeFromCart-${itemId}`).style.display = 'none';
+      updateCartDisplay();
+      setCookie('shoppingCart', JSON.stringify(shoppingCart), 7);
+    }
+  }
+
   function updateCartDisplay() {
     const cartCount = document.getElementById('cart-count');
     cartCount.textContent = shoppingCart.length;

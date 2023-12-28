@@ -39,24 +39,24 @@ button:hover {
     background-color: #0056b3;
 }
 
-/* Pink flowers on the sides */
+
 .flower-border::before,
 .flower-border::after {
     content: "";
     position: absolute;
     width: 100px;
     height: 100px;
-    background-image: url('pink-flower.png'); /* Replace with your flower image URL */
+    background-image: url('pink-flower.png');
     background-size: cover;
 }
 
 .flower-border::before {
-    left: -30px; /* Adjust the positioning as needed */
+    left: -30px;
     top: -30px;
 }
 
 .flower-border::after {
-    right: -30px; /* Adjust the positioning as needed */
+    right: -30px;
     bottom: -30px;
 }
 

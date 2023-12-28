@@ -41,3 +41,19 @@ button {
 button:hover {
     background-color: #218838;
 }
+
+#backToAdmin {
+    position: fixed;
+    left: 10px;
+    bottom: 10px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+}
