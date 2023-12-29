@@ -21,7 +21,7 @@ Follow these steps to set up your development environment:
 
 Clone the repository:
 ```bash
-git clone https://github.com/your_username/project_name.git
+git clone https://github.com/Bluebloodfr/Clothes_Renting
 ```
 
 Install NPM packages:
@@ -38,7 +38,7 @@ npm start
 
 For testing purposes, navigate to the project directory and execute:
 ```bash
-npm tets
+npm test
 ```
 
 ### Contributing
